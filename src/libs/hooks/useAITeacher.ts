@@ -1,8 +1,34 @@
 import { create } from "zustand";
 
+export interface Message {
+  question: string;
+  id: number;
+  answer: any;
+  audioPlayer?: any;
+  visemes?: any;
+}
+export interface AITeacherState {
+  messages: Message[];
+  currentMessage: Message | null;
+  teacher: string;
+  setTeacher: (teacher: string) => void;
+  classroom: "default" | "alternative";
+  setClassroom: (classroom: "default" | "alternative") => void;
+  loading: boolean;
+  furigana: boolean;
+  setFurigana: (furigana: boolean) => void;
+  english: boolean;
+  setEnglish: (english: boolean) => void;
+  speech: "formal" | "casual";
+  setSpeech: (speech: "formal" | "casual") => void;
+  askAI: (question: string) => Promise<void>;
+  playMessage: (message: Message) => Promise<void>;
+  stopMessage: (message: Message) => void;
+}
+
 export const teachers = ["Nanami", "Naoki"];
 
-export const useAITeacher = create((set, get) => ({
+export const useAITeacher = create<AITeacherState>((set, get) => ({
   messages: [],
   currentMessage: null,
   teacher: teachers[0],
@@ -47,6 +73,8 @@ export const useAITeacher = create((set, get) => ({
     const message = {
       question,
       id: get().messages.length,
+      answer: null,
+      speech: get().speech,
     };
     set(() => ({
       loading: true,
@@ -82,11 +110,11 @@ export const useAITeacher = create((set, get) => ({
       // Get TTS
       const audioRes = await fetch(
         `/api/tts?teacher=${get().teacher}&text=${message.answer.japanese
-          .map((word) => word.word)
+          .map((word : any) => word.word)
           .join(" ")}`
       );
       const audio = await audioRes.blob();
-      const visemes = JSON.parse(await audioRes.headers.get("visemes"));
+      const visemes = JSON.parse(audioRes.headers.get("visemes")!);
       const audioUrl = URL.createObjectURL(audio);
       const audioPlayer = new Audio(audioUrl);
 

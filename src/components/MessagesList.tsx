@@ -1,38 +1,33 @@
-import { useAITeacher } from "@/hooks/useAITeacher";
+import useAITeacher, { Message } from "@/libs/stores/aiJapaneseStore";
 import { useEffect, useRef } from "react";
 
+import { cn } from "@/utils/style";
+
 export const MessagesList = () => {
-  const messages = useAITeacher((state) => state.messages);
+  const messages: Message[] = useAITeacher((state) => state.messages);
   const playMessage = useAITeacher((state) => state.playMessage);
   const { currentMessage } = useAITeacher();
-  const english = useAITeacher((state) => state.english);
-  const furigana = useAITeacher((state) => state.furigana);
-  const classroom = useAITeacher((state) => state.classroom);
 
-  const container = useRef();
+  const container = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    container.current.scrollTo({
+    container.current?.scrollTo({
       top: container.current.scrollHeight,
       behavior: "smooth",
     });
   }, [messages.length]);
 
-  const renderEnglish = (englishText) => (
-    <>
-      {english && (
-        <p className="text-4xl inline-block px-2 rounded-sm font-bold bg-clip-text text-transparent bg-gradient-to-br from-blue-300/90 to-white/90">
-          {englishText}
-        </p>
-      )}
-    </>
+  const renderKorean = (koreanText: string) => (
+    <p className="text-4xl inline-block px-2 rounded-sm font-bold bg-clip-text text-transparent bg-gradient-to-br from-blue-300/90 to-white/90">
+      {koreanText}
+    </p>
   );
 
-  const renderJapanese = (japanese) => (
+  const renderJapanese = (japanese: { word: string; reading?: string }[]) => (
     <p className="text-white font-bold text-4xl mt-2 font-jp flex flex-wrap gap-1">
       {japanese.map((word, i) => (
         <span key={i} className="flex flex-col justify-end items-center">
-          {furigana && word.reading && (
+          {word.reading && (
             <span className="text-2xl text-white/65">{word.reading}</span>
           )}
           {word.word}
@@ -41,47 +36,35 @@ export const MessagesList = () => {
     </p>
   );
 
+  console.log("messages :", messages);
   return (
     <div
-      className={`${
-        classroom === "default"
-          ? "w-[1288px] h-[676px]"
-          : "w-[2528px] h-[856px]"
-      } p-8 overflow-y-auto flex flex-col space-y-8 bg-transparent opacity-80`}
+      className={cn(
+        "w-[1288px] h-[676px]",
+        "p-8 overflow-y-auto flex flex-col space-y-8 bg-transparent opacity-8"
+      )}
       ref={container}
     >
       {messages.length === 0 && (
-        <div className="h-full w-full grid place-content-center text-center">
+        <div className="h-full w-full grid place-content-center text-center gap-6">
           <h2 className="text-8xl font-bold text-white/90 italic">
-            Wawa Sensei
-            <br />
-            Japanese Language School
+            냥이 선생님과 함께하는
+          </h2>
+          <h2 className="text-8xl font-bold text-white/90 italic">
+            즐거운 일본어 수업
           </h2>
           <h2 className="text-8xl font-bold font-jp text-red-600/90 italic">
-            ワワ先生日本語学校
+            猫先生日本語学校
           </h2>
         </div>
       )}
-      {messages.map((message, i) => (
-        <div key={i}>
+      {messages.map((message, index) => (
+        <div key={index}>
           <div className="flex">
             <div className="flex-grow">
-              <div className="flex items-center gap-3">
-                <span
-                  className={`text-white/90 text-2xl font-bold uppercase px-3 py-1 rounded-full  ${
-                    message.speech === "formal"
-                      ? "bg-indigo-600"
-                      : "bg-teal-600"
-                  }`}
-                >
-                  {message.speech}
-                </span>
-                {renderEnglish(message.answer.english)}
-              </div>
-
               {renderJapanese(message.answer.japanese)}
             </div>
-            {currentMessage === message ? (
+            {/* {currentMessage === message ? (
               <button
                 className="text-white/65"
                 onClick={() => stopMessage(message)}
@@ -131,24 +114,24 @@ export const MessagesList = () => {
                   />
                 </svg>
               </button>
-            )}
+            )} */}
           </div>
           <div className="p-5 mt-5  bg-gradient-to-br from-pink-200/20 to-pink-500/20 rounded-xl">
             <span className="pr-4 italic bg-clip-text text-transparent bg-gradient-to-b from-white/90 to-white/70 text-3xl font-bold uppercase inline-block">
-              Grammar Breakdown
+              문법 분해
             </span>
-            {message.answer.grammarBreakdown.map((grammar, i) => (
-              <div key={i} className="mt-3">
+            {message.answer.grammarBreakdown.map((grammar: any, index: any) => (
+              <div key={index} className="mt-3">
                 {message.answer.grammarBreakdown.length > 1 && (
                   <>
-                    {renderEnglish(grammar.english)}
+                    {renderKorean(grammar.korean)}
                     {renderJapanese(grammar.japanese)}
                   </>
                 )}
 
                 <div className="mt-3 flex flex-wrap gap-3 items-end">
-                  {grammar.chunks.map((chunk, i) => (
-                    <div key={i} className="p-2 bg-black/30 rounded-md">
+                  {grammar.chunks.map((chunk: any, index: any) => (
+                    <div key={index} className="p-2 bg-black/30 rounded-md">
                       <p className="text-white/90 text-4xl font-jp">
                         {renderJapanese(chunk.japanese)}
                       </p>

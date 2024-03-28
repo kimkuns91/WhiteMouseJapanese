@@ -1,5 +1,7 @@
-import { useAITeacher } from "@/hooks/useAITeacher";
+import useAITeacher from "@/libs/stores/aiJapaneseStore";
+import { cn } from "@/utils/style";
 import { useState } from "react";
+import { IoIosSend } from "react-icons/io";
 
 export const TypingBox = () => {
   const askAI = useAITeacher((state) => state.askAI);
@@ -10,16 +12,13 @@ export const TypingBox = () => {
     askAI(question);
     setQuestion("");
   };
+
   return (
-    <div className="z-10 max-w-[600px] flex space-y-6 flex-col bg-gradient-to-tr  from-slate-300/30 via-gray-400/30 to-slate-600-400/30 p-4  backdrop-blur-md rounded-xl border-slate-100/30 border">
+    <div className="z-10 w-[600px] max-w-[600px] flex space-y-6 flex-col bg-gradient-to-tr  from-slate-300/30 via-gray-400/30 to-slate-600-400/30 p-4 backdrop-blur-md rounded-xl border-slate-100/30 border">
       <div>
         <h2 className="text-white font-bold text-xl">
-          How to say in Japanese?
+          일본어 선생님한테 질문해보세요!
         </h2>
-        <p className="text-white/65">
-          Type a sentence you want to say in Japanese and AI Sensei will
-          translate it for you.
-        </p>
       </div>
 
       {loading ? (
@@ -43,10 +42,13 @@ export const TypingBox = () => {
             }}
           />
           <button
-            className="bg-slate-100/20 p-2 px-6 rounded-full text-white"
+            className={cn(
+              "bg-[#723CD6] p-2 px-3 rounded-full text-white",
+              "hover:opacity-70 transition-all duration-200"
+            )}
             onClick={ask}
           >
-            Ask
+            <IoIosSend className="text-xl" />
           </button>
         </div>
       )}
