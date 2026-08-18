@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   speechConfig.speechSynthesisVoiceName = `ja-JP-${teacher}Neural`;
 
   const speechSynthesizer = new sdk.SpeechSynthesizer(speechConfig);
-  const visemes = [];
+  const visemes: [number, number][] = [];
   speechSynthesizer.visemeReceived = function (s, e) {
     console.log(
       "(Viseme), Audio offset: " +
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     );
     visemes.push([e.audioOffset / 10000, e.visemeId]);
   };
-  const audioStream = await new Promise((resolve, reject) => {
+  const audioStream = await new Promise<any>((resolve, reject) => {
     speechSynthesizer.speakTextAsync(
       request.nextUrl.searchParams.get("text") ||
         "I'm excited to try text to speech",
